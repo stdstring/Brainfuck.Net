@@ -2,3 +2,7 @@ Brainfuck.Net/.vs/*
 Brainfuck.Net/packages/*
 Brainfuck.Net/Brainfuck.Net.CodeGeneration.Tests/bin/*
 Brainfuck.Net/Brainfuck.Net.CodeGeneration.Tests/obj/*
+Brainfuck.Net/Brainfuck.Net.Interpreter.App/bin/*
+Brainfuck.Net/Brainfuck.Net.Interpreter.App/obj/*
+Brainfuck.Net/Brainfuck.Net.Interpreter.Core/bin/*
+Brainfuck.Net/Brainfuck.Net.Interpreter.Core/obj/*
