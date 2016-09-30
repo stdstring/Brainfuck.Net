@@ -9,6 +9,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Brainfuck.Net.Interpreter.C
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Brainfuck.Net.Interpreter.App", "Brainfuck.Net.Interpreter.App\Brainfuck.Net.Interpreter.App.fsproj", "{D1C1E381-B9D9-4C88-A52C-FEBCC4AE07F2}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Brainfuck.Net.Interpreter.Core.Tests", "Brainfuck.Net.Interpreter.Core.Tests\Brainfuck.Net.Interpreter.Core.Tests.fsproj", "{2ED838E9-1998-4985-A0F6-3B17DAF6AF96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{D1C1E381-B9D9-4C88-A52C-FEBCC4AE07F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1C1E381-B9D9-4C88-A52C-FEBCC4AE07F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1C1E381-B9D9-4C88-A52C-FEBCC4AE07F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ED838E9-1998-4985-A0F6-3B17DAF6AF96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ED838E9-1998-4985-A0F6-3B17DAF6AF96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ED838E9-1998-4985-A0F6-3B17DAF6AF96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ED838E9-1998-4985-A0F6-3B17DAF6AF96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
