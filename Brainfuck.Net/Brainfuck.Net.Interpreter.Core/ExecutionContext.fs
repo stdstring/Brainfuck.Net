@@ -6,9 +6,11 @@ open System.IO
 
 type ExecutionContext =
     {
-        mutable OpCount : int32;
-        mutable Ip : int32;
-        mutable CurrentCell : int32
+        Config : InterpreterConfig;
+        mutable OpCount : Int32;
+        mutable Ip : Int32;
+        mutable CurrentCell : Int32
+        Memory : byte[]
         Stack : Stack<Int32>;
         Input : Stream
         Output : Stream
