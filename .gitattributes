@@ -1,6 +1,7 @@
 # Set the default behavior, in case people don't have core.autocrlf set.
 * text=auto
 
+# *.in, *.out and *.src files are files with tests data
 *.in binary
 *.out binary
 *.src binary
