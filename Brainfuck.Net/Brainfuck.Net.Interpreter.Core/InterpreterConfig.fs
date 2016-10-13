@@ -1,3 +1,12 @@
 ﻿namespace Brainfuck.Net.Interpreter.Core
 
-type InterpreterConfig = {MemorySize : int; MemoryInitCell : int; MaxOpCount : int}
+open System.IO
+
+type InterpreterConfig =
+    {
+        MemorySize : int;
+        MemoryInitCell : int;
+        MaxOpCount : int;
+        Input : TextReader;
+        Output : TextWriter;
+    }

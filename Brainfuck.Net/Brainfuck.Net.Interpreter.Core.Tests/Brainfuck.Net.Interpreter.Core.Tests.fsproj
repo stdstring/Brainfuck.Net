@@ -52,8 +52,8 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Library1.fs" />
     <Content Include="packages.config" />
+    <Compile Include="InterpreterTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

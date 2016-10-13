@@ -10,13 +10,13 @@ type public Interpreter() =
     //let MaxOpCount = 100000
     let KnownChars = "><+-.,[]"
 
-    let read_char (input : Stream) : byte =
-        match input.ReadByte() with
+    let read_char (input : TextReader) : char =
+        match input.Read() with
         | -1 -> failwith "unexpected eof"
-        | value -> value |> byte
+        | value -> value |> char
 
-    let write_char (character : char) (output : Stream) : unit =
-        output.WriteByte(character |> byte)
+    let write_char (character : char) (output : TextWriter) : unit =
+        output.Write(character)
 
     let find_block_end startIndex (program : string) =
         let rec find_block_end_impl index balance =
@@ -49,13 +49,11 @@ type public Interpreter() =
             context.Ip <- context.Ip + 1
             context.OpCount <- context.OpCount + 1
         | '.' ->
-            //[| memory.[context.CurrentCell] |] |> Encoding.ASCII.GetString |> printf "%s"
-            write_char (memory.[context.CurrentCell] |> char) context.Output
+            write_char (memory.[context.CurrentCell] |> char) context.Config.Output
             context.Ip <- context.Ip + 1
             context.OpCount <- context.OpCount + 1
         | ',' ->
-            //memory.[context.CurrentCell] <- context.Input.Dequeue()
-            memory.[context.CurrentCell] <- read_char context.Input
+            memory.[context.CurrentCell] <- read_char context.Config.Input |> byte
             context.Ip <- context.Ip + 1
             context.OpCount <- context.OpCount + 1
         | '[' ->
@@ -84,7 +82,7 @@ type public Interpreter() =
         let rec execute_program_impl () =
             match context with
             | context when context.Ip = programSize -> ()
-            | context when context.OpCount >= context.Config.MaxOpCount -> printfn "\nPROCESS TIME OUT. KILLED!!!"
+            | context when context.OpCount >= context.Config.MaxOpCount -> "\nPROCESS TIME OUT. KILLED!!!" |> context.Config.Output.Write
             | _ ->
                 execute_command context program
                 execute_program_impl ()
@@ -93,7 +91,7 @@ type public Interpreter() =
     let prepare(program : string) : string =
         program |> String.Concat |> Seq.filter (fun ch -> KnownChars.IndexOf(ch) >= 0) |> String.Concat
 
-    member public this.Execute(program : string, config : InterpreterConfig, input : Stream, output : Stream) : unit =
+    member public this.Execute(program : string, config : InterpreterConfig) : unit =
         let memory = Array.create config.MemorySize 0uy
-        let context = {Config = config; OpCount = 0; Ip = 0; CurrentCell = 0; Memory = memory; Stack = new Stack<Int32>(); Input = input; Output = output}
+        let context = {Config = config; OpCount = 0; Ip = 0; CurrentCell = 0; Memory = memory; Stack = new Stack<Int32>()}
         program |> prepare |> execute_program context

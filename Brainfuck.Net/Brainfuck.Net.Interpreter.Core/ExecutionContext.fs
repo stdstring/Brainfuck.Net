@@ -10,8 +10,8 @@ type ExecutionContext =
         mutable OpCount : Int32;
         mutable Ip : Int32;
         mutable CurrentCell : Int32
-        Memory : byte[]
+        Memory : Byte[]
         Stack : Stack<Int32>;
-        Input : Stream
-        Output : Stream
+        //Input : Stream
+        //Output : Stream
     }

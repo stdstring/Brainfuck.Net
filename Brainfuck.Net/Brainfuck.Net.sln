@@ -11,6 +11,66 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Brainfuck.Net.Interpreter.A
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Brainfuck.Net.Interpreter.Core.Tests", "Brainfuck.Net.Interpreter.Core.Tests\Brainfuck.Net.Interpreter.Core.Tests.fsproj", "{2ED838E9-1998-4985-A0F6-3B17DAF6AF96}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestCases", "TestCases", "{BF0397A0-33C1-476E-8B20-03DCE564199D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hackerrank", "Hackerrank", "{5041D637-1A88-4494-B296-4930F102AB91}"
+	ProjectSection(SolutionItems) = preProject
+		TestCases\Hackerrank\case0.in = TestCases\Hackerrank\case0.in
+		TestCases\Hackerrank\case0.out = TestCases\Hackerrank\case0.out
+		TestCases\Hackerrank\case0.src = TestCases\Hackerrank\case0.src
+		TestCases\Hackerrank\case1.in = TestCases\Hackerrank\case1.in
+		TestCases\Hackerrank\case1.out = TestCases\Hackerrank\case1.out
+		TestCases\Hackerrank\case1.src = TestCases\Hackerrank\case1.src
+		TestCases\Hackerrank\case10.in = TestCases\Hackerrank\case10.in
+		TestCases\Hackerrank\case10.out = TestCases\Hackerrank\case10.out
+		TestCases\Hackerrank\case10.src = TestCases\Hackerrank\case10.src
+		TestCases\Hackerrank\case11.in = TestCases\Hackerrank\case11.in
+		TestCases\Hackerrank\case11.out = TestCases\Hackerrank\case11.out
+		TestCases\Hackerrank\case11.src = TestCases\Hackerrank\case11.src
+		TestCases\Hackerrank\case12.in = TestCases\Hackerrank\case12.in
+		TestCases\Hackerrank\case12.out = TestCases\Hackerrank\case12.out
+		TestCases\Hackerrank\case12.src = TestCases\Hackerrank\case12.src
+		TestCases\Hackerrank\case13.in = TestCases\Hackerrank\case13.in
+		TestCases\Hackerrank\case13.out = TestCases\Hackerrank\case13.out
+		TestCases\Hackerrank\case13.src = TestCases\Hackerrank\case13.src
+		TestCases\Hackerrank\case14.in = TestCases\Hackerrank\case14.in
+		TestCases\Hackerrank\case14.out = TestCases\Hackerrank\case14.out
+		TestCases\Hackerrank\case14.src = TestCases\Hackerrank\case14.src
+		TestCases\Hackerrank\case15.in = TestCases\Hackerrank\case15.in
+		TestCases\Hackerrank\case15.out = TestCases\Hackerrank\case15.out
+		TestCases\Hackerrank\case15.src = TestCases\Hackerrank\case15.src
+		TestCases\Hackerrank\case16.in = TestCases\Hackerrank\case16.in
+		TestCases\Hackerrank\case16.out = TestCases\Hackerrank\case16.out
+		TestCases\Hackerrank\case16.src = TestCases\Hackerrank\case16.src
+		TestCases\Hackerrank\case17.in = TestCases\Hackerrank\case17.in
+		TestCases\Hackerrank\case17.out = TestCases\Hackerrank\case17.out
+		TestCases\Hackerrank\case17.src = TestCases\Hackerrank\case17.src
+		TestCases\Hackerrank\case2.in = TestCases\Hackerrank\case2.in
+		TestCases\Hackerrank\case2.out = TestCases\Hackerrank\case2.out
+		TestCases\Hackerrank\case2.src = TestCases\Hackerrank\case2.src
+		TestCases\Hackerrank\case3.in = TestCases\Hackerrank\case3.in
+		TestCases\Hackerrank\case3.out = TestCases\Hackerrank\case3.out
+		TestCases\Hackerrank\case3.src = TestCases\Hackerrank\case3.src
+		TestCases\Hackerrank\case4.in = TestCases\Hackerrank\case4.in
+		TestCases\Hackerrank\case4.out = TestCases\Hackerrank\case4.out
+		TestCases\Hackerrank\case4.src = TestCases\Hackerrank\case4.src
+		TestCases\Hackerrank\case5.in = TestCases\Hackerrank\case5.in
+		TestCases\Hackerrank\case5.out = TestCases\Hackerrank\case5.out
+		TestCases\Hackerrank\case5.src = TestCases\Hackerrank\case5.src
+		TestCases\Hackerrank\case6.in = TestCases\Hackerrank\case6.in
+		TestCases\Hackerrank\case6.out = TestCases\Hackerrank\case6.out
+		TestCases\Hackerrank\case6.src = TestCases\Hackerrank\case6.src
+		TestCases\Hackerrank\case7.in = TestCases\Hackerrank\case7.in
+		TestCases\Hackerrank\case7.out = TestCases\Hackerrank\case7.out
+		TestCases\Hackerrank\case7.src = TestCases\Hackerrank\case7.src
+		TestCases\Hackerrank\case8.in = TestCases\Hackerrank\case8.in
+		TestCases\Hackerrank\case8.out = TestCases\Hackerrank\case8.out
+		TestCases\Hackerrank\case8.src = TestCases\Hackerrank\case8.src
+		TestCases\Hackerrank\case9.in = TestCases\Hackerrank\case9.in
+		TestCases\Hackerrank\case9.out = TestCases\Hackerrank\case9.out
+		TestCases\Hackerrank\case9.src = TestCases\Hackerrank\case9.src
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +96,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5041D637-1A88-4494-B296-4930F102AB91} = {BF0397A0-33C1-476E-8B20-03DCE564199D}
 	EndGlobalSection
 EndGlobal
