@@ -12,7 +12,7 @@ type public Interpreter() =
 
     let read_char (input : TextReader) : char =
         match input.Read() with
-        | -1 -> failwith "unexpected eof"
+        | -1 -> raise (InvalidOperationException("unexpected eof"))
         | value -> value |> char
 
     let write_char (character : char) (output : TextWriter) : unit =
@@ -75,7 +75,7 @@ type public Interpreter() =
             | _ ->
                 context.Ip <- context.Stack.Peek()
                 context.OpCount <- context.OpCount + 2
-        | _ -> failwith "bad command"
+        | _ -> raise (InvalidOperationException("bad command"))
 
     let execute_program (context : ExecutionContext) (program : string) : unit =
         let programSize = program.Length

@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
+    <Compile Include="InterpreterExternalSrcTests.fs" />
     <Compile Include="InterpreterTests.fs" />
   </ItemGroup>
   <ItemGroup>
