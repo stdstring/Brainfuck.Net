@@ -46,6 +46,8 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="InterpreterConfig.fs" />
     <Compile Include="ExecutionContext.fs" />
+    <Compile Include="ExecutionContextFactory.fs" />
+    <Compile Include="ExecutionState.fs" />
     <Compile Include="Interpreter.fs" />
   </ItemGroup>
   <PropertyGroup>
