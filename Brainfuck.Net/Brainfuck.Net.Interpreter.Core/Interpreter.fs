@@ -4,6 +4,22 @@ open System
 open System.Collections.Generic
 open System.IO
 
+type public ExecutionContextFactory() =
+
+    let KnownChars = "><+-.,[]"
+
+    let prepare_program (program : string) : string =
+        program |> String.Concat |> Seq.filter (fun ch -> KnownChars.IndexOf(ch) >= 0) |> String.Concat
+
+    member public this.Create(program : string, config : InterpreterConfig) : ExecutionContext =
+        let memory = Array.create config.MemorySize 0uy
+        let preparedProgram = program |> prepare_program
+        {Config = config; Program = preparedProgram; OpCount = 0; Ip = 0; CurrentCell = 0; Memory = memory; Stack = new Stack<Int32>()}
+
+type public ExecutionState =
+    | Run = 0
+    | Stop =1
+
 type public Interpreter() =
 
     //let MemorySize = 30000
@@ -18,18 +34,18 @@ type public Interpreter() =
     let write_char (character : char) (output : TextWriter) : unit =
         output.Write(character)
 
-    let find_block_end startIndex (program : string) =
+    let find_block_end (context : ExecutionContext) =
         let rec find_block_end_impl index balance =
-            match program.[index] with
+            match context.Program.[index] with
             | '[' -> find_block_end_impl (index + 1) (balance + 1)
             | ']' when balance > 1 -> find_block_end_impl (index + 1) (balance - 1)
             | ']' when balance = 1 -> index
             | _ -> find_block_end_impl (index + 1) balance
-        find_block_end_impl startIndex 0
+        find_block_end_impl context.Ip 0
 
-    let execute_command (context : ExecutionContext) (program : string) =
+    let execute_command (context : ExecutionContext) =
         let memory = context.Memory
-        let command = program.[context.Ip]
+        let command = context.Program.[context.Ip]
         match command with
         | '>' ->
             context.CurrentCell <- context.CurrentCell + 1
@@ -59,7 +75,7 @@ type public Interpreter() =
         | '[' ->
             match memory.[context.CurrentCell] with
             | 0uy ->
-                let blockEndIp = find_block_end context.Ip program
+                let blockEndIp = context |> find_block_end
                 context.Ip <- blockEndIp + 1
                 context.OpCount <- context.OpCount + 2
             | _ ->
@@ -77,21 +93,22 @@ type public Interpreter() =
                 context.OpCount <- context.OpCount + 2
         | _ -> raise (InvalidOperationException("bad command"))
 
-    let execute_program (context : ExecutionContext) (program : string) : unit =
-        let programSize = program.Length
-        let rec execute_program_impl () =
-            match context with
-            | context when context.Ip = programSize -> ()
-            | context when context.OpCount >= context.Config.MaxOpCount -> "\nPROCESS TIME OUT. KILLED!!!" |> context.Config.Output.Write
-            | _ ->
-                execute_command context program
-                execute_program_impl ()
-        execute_program_impl ()
-
-    let prepare(program : string) : string =
-        program |> String.Concat |> Seq.filter (fun ch -> KnownChars.IndexOf(ch) >= 0) |> String.Concat
-
     member public this.Execute(program : string, config : InterpreterConfig) : unit =
-        let memory = Array.create config.MemorySize 0uy
-        let context = {Config = config; OpCount = 0; Ip = 0; CurrentCell = 0; Memory = memory; Stack = new Stack<Int32>()}
-        program |> prepare |> execute_program context
+        let factory = new ExecutionContextFactory()
+        let rec execute context =
+            match this.ExecuteNextCommand(context) with
+            | ExecutionState.Run -> context |> execute
+            | ExecutionState.Stop -> ()
+            | _ -> raise (InvalidOperationException("bad execution state"))
+        factory.Create(program, config) |> execute
+
+    member public this.ExecuteNextCommand(context : ExecutionContext) : ExecutionState =
+        let programSize = context.Program.Length
+        match context with
+        | context when context.Ip = programSize -> ExecutionState.Stop
+        | context when context.OpCount >= context.Config.MaxOpCount ->
+            "\nPROCESS TIME OUT. KILLED!!!" |> context.Config.Output.Write
+            ExecutionState.Stop
+        | _ ->
+            context |> execute_command
+            ExecutionState.Run
