@@ -1,6 +1,34 @@
 ﻿// Learn more about F# at http://fsharp.org
 // See the 'F# Tutorial' project for more help.
 
+type ArgType =
+    | Version
+    | Help
+    | Interactive
+    | Load of filename: string
+    | Source of data: string
+
+type ConfigCommands =
+    | Load of filename: string
+    | Source of data: string
+    | Input of filename: string
+    | ISource of data: string
+    | Output of filename: string
+    | SetVariable of name: string * value: int
+    | GetVariable of name: string
+    | GetAllVariables
+    | EnterRunMode
+
+type RunCommands =
+    | Run
+    | RunOnce
+    | GetStatus
+    | GetCurrentMemoryCell
+    | GetMemoryCell of cell: int
+    | ShowInput
+    | ShowOutput
+    | ExitRunMode
+
 // DESCRIPTION:
 //
 // command line args
@@ -8,7 +36,8 @@
 // 1) --version
 // 2) --help
 // 3) --interactive
-// 4) --code code-file
+// 4) --load code-filename
+// 5) --source code-fragment
 // allowed combinations:
 // app -> show help
 // app --help -> show help
