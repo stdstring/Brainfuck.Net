@@ -7,8 +7,9 @@ type ArgType =
     | Interactive
     | Load of filename: string
     | Source of data: string
+    | Unknown
 
-type ConfigCommands =
+type ConfigCommand =
     | Load of filename: string
     | Source of data: string
     | Input of filename: string
@@ -18,16 +19,70 @@ type ConfigCommands =
     | GetVariable of name: string
     | GetAllVariables
     | EnterRunMode
+    | Unknown
 
-type RunCommands =
+type RunCommand =
     | Run
     | RunOnce
-    | GetStatus
+    | GetState
     | GetCurrentMemoryCell
     | GetMemoryCell of cell: int
     | ShowInput
     | ShowOutput
     | ExitRunMode
+    | Unknown
+
+//let RecognizeArgs argv =
+//    match argv with
+//    | [||] | [|"--help"|] -> ArgType.Help
+//    | [|"--version"|] -> ArgType.Version
+//    | [|"--interactive"|] -> ArgType.Interactive
+//    | [|"--load"; Filename|] -> ArgType.Load(filename = Filename)
+//    | [|"--source"; Data|] -> ArgType.Source(data = Data)
+//    | _ -> ArgType.Unknown
+
+let RecognizeArgs =
+    function
+    | [||] | [|"--help"|] -> ArgType.Help
+    | [|"--version"|] -> ArgType.Version
+    | [|"--interactive"|] -> ArgType.Interactive
+    | [|"--load"; filename|] -> ArgType.Load(filename = filename)
+    | [|"--source"; data|] -> ArgType.Source(data = data)
+    | _ -> ArgType.Unknown
+
+let ProcessArgs argsData =
+    match argsData with
+    | ArgType.Version -> ()
+    | ArgType.Help -> ()
+    | ArgType.Interactive -> ()
+    | ArgType.Load(filename = filename) -> ()
+    | ArgType.Source(data = data) -> ()
+    | ArgType.Unknown -> ()
+
+let ProcessConfigCommand command =
+    match command with
+    | ConfigCommand.Load(filename = filename) -> ()
+    | ConfigCommand.Source(data = data) -> ()
+    | ConfigCommand.Input(filename = filename) -> ()
+    | ConfigCommand.ISource(data = data) -> ()
+    | ConfigCommand.Output(filename = filename) -> ()
+    | ConfigCommand.SetVariable(name = name; value = value) -> ()
+    | ConfigCommand.GetVariable(name = name) -> ()
+    | ConfigCommand.GetAllVariables -> ()
+    | ConfigCommand.EnterRunMode -> ()
+    | ConfigCommand.Unknown -> ()
+
+let ProcessRunnCommand command =
+    match command with
+    | RunCommand.Run -> ()
+    | RunCommand.RunOnce -> ()
+    | RunCommand.GetState -> ()
+    | RunCommand.GetCurrentMemoryCell -> ()
+    | RunCommand.GetMemoryCell(cell = cell) -> ()
+    | RunCommand.ShowInput -> ()
+    | RunCommand.ShowOutput -> ()
+    | RunCommand.ExitRunMode -> ()
+    | RunCommand.Unknown -> ()
 
 // DESCRIPTION:
 //
@@ -59,7 +114,7 @@ type RunCommands =
 // in run mode:
 // run all -> execute code to the end
 // run once -> execute (one) current command
-// status -> get current execution status (CurrentMemoryCell, CurrentIp, CurrentOpCount)
+// state -> get current execution state (CurrentMemoryCell, CurrentIp, CurrentOpCount)
 // memory -> get value of current memory cell
 // memory memory-cell -> get value of memory cell by memory-cell address
 // input -> show retrieved input
