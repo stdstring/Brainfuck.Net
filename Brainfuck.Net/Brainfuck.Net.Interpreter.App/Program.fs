@@ -1,19 +1,18 @@
-﻿// Learn more about F# at http://fsharp.org
-// See the 'F# Tutorial' project for more help.
+﻿open System
 
 type ArgType =
     | Version
     | Help
     | Interactive
     | Load of filename: string
-    | Source of data: string
+    | Source of code: string
     | Unknown
 
 type ConfigCommand =
     | Load of filename: string
-    | Source of data: string
+    | Source of code: string
     | Input of filename: string
-    | ISource of data: string
+    | ISource of input: string
     | Output of filename: string
     | SetVariable of name: string * value: int
     | GetVariable of name: string
@@ -47,7 +46,7 @@ let RecognizeArgs =
     | [|"--version"|] -> ArgType.Version
     | [|"--interactive"|] -> ArgType.Interactive
     | [|"--load"; filename|] -> ArgType.Load(filename = filename)
-    | [|"--source"; data|] -> ArgType.Source(data = data)
+    | [|"--source"; code|] -> ArgType.Source(code = code)
     | _ -> ArgType.Unknown
 
 let ProcessArgs argsData =
@@ -56,15 +55,15 @@ let ProcessArgs argsData =
     | ArgType.Help -> ()
     | ArgType.Interactive -> ()
     | ArgType.Load(filename = filename) -> ()
-    | ArgType.Source(data = data) -> ()
+    | ArgType.Source(code = code) -> ()
     | ArgType.Unknown -> ()
 
 let ProcessConfigCommand command =
     match command with
     | ConfigCommand.Load(filename = filename) -> ()
-    | ConfigCommand.Source(data = data) -> ()
+    | ConfigCommand.Source(code = code) -> ()
     | ConfigCommand.Input(filename = filename) -> ()
-    | ConfigCommand.ISource(data = data) -> ()
+    | ConfigCommand.ISource(input = input) -> ()
     | ConfigCommand.Output(filename = filename) -> ()
     | ConfigCommand.SetVariable(name = name; value = value) -> ()
     | ConfigCommand.GetVariable(name = name) -> ()
@@ -83,6 +82,86 @@ let ProcessRunnCommand command =
     | RunCommand.ShowOutput -> ()
     | RunCommand.ExitRunMode -> ()
     | RunCommand.Unknown -> ()
+
+let (|LoadCode | _|) (command : string) =
+    match command.Split([|' '; '\t'|], 2, StringSplitOptions.RemoveEmptyEntries) with
+    | [|"load"; filename|] -> Some(filename)
+    | _ -> None
+
+let (|SourceCode | _|) (command : string) =
+    match command.Split([|' '; '\t'|], 2, StringSplitOptions.RemoveEmptyEntries) with
+    | [|"source"; code|] -> Some(code)
+    | _ -> None
+
+let (|LoadInput | _|) (command : string) =
+    match command.Split([|' '; '\t'|], 2, StringSplitOptions.RemoveEmptyEntries) with
+    | [|"input"; filename|] -> Some(filename)
+    | _ -> None
+
+let (|SourceInput | _|) (command : string) =
+    match command.Split([|' '; '\t'|], 2, StringSplitOptions.RemoveEmptyEntries) with
+    | [|"isource"; input|] -> Some(input)
+    | _ -> None
+
+let (|RedirectOutput | _|) (command : string) =
+    match command.Split([|' '; '\t'|], 2, StringSplitOptions.RemoveEmptyEntries) with
+    | [|"output"; filename|] -> Some(filename)
+    | _ -> None
+
+let (|ToInt | _|) (source : string) =
+    let mutable value = 0
+    match Int32.TryParse(source, &value) with
+    | true -> Some(value)
+    | false -> None
+
+let (|SetVariable | _|) (command : string) =
+    match command.Split([|' '; '\t'|], 2, StringSplitOptions.RemoveEmptyEntries) with
+    | [|"set"; commandRest|] ->
+        match commandRest.Split([|'='|], 2, StringSplitOptions.RemoveEmptyEntries) with
+        | [|name; value|] ->
+            match value with
+            | ToInt intValue -> Some(name.TrimEnd(), intValue)
+            | _ -> None
+        | _ -> None
+    | _ -> None
+
+let (|GetVariable | _|) (command : string) =
+    match command.Split([|' '; '\t'|], 2, StringSplitOptions.RemoveEmptyEntries) with
+    | [|"get"; name|] -> Some(name)
+    | _ -> None
+
+let ParseConfigCommand (command : string) =
+    match command.Trim() with
+    | LoadCode filename -> ConfigCommand.Load(filename = filename)
+    | SourceCode code -> ConfigCommand.Source(code = code)
+    | LoadInput filename -> ConfigCommand.Input(filename = filename)
+    | SourceInput input -> ConfigCommand.ISource(input = input)
+    | RedirectOutput filename -> ConfigCommand.Output(filename = filename)
+    | SetVariable (name, value) -> ConfigCommand.SetVariable(name = name, value = value)
+    | GetVariable name -> ConfigCommand.GetVariable(name = name)
+    | "get all" -> ConfigCommand.GetAllVariables
+    | "enter" -> ConfigCommand.EnterRunMode
+    | _ -> ConfigCommand.Unknown
+
+let (|GetMemory | _|) (command : string) =
+    match command.Split([|' '; '\t'|], 2, StringSplitOptions.RemoveEmptyEntries) with
+    | [|"memory"; value|] ->
+        match value with
+        | ToInt cell -> Some(cell)
+        | _ -> None
+    | _ -> None
+
+let ParseRunCommand (command : string) =
+    match command.Trim() with
+    | "run all" -> RunCommand.Run
+    | "run once" -> RunCommand.RunOnce
+    | "state" -> RunCommand.GetState
+    | "memory" -> RunCommand.GetCurrentMemoryCell
+    | GetMemory cell -> RunCommand.GetMemoryCell(cell = cell)
+    | "input" -> RunCommand.ShowInput
+    | "output" -> RunCommand.ShowOutput
+    | "exit" -> RunCommand.ExitRunMode
+    | _ -> RunCommand.Unknown
 
 // DESCRIPTION:
 //
