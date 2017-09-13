@@ -1,4 +1,6 @@
 ﻿open System
+open System.IO
+open Brainfuck.Net.Interpreter.Core
 
 type ArgType =
     | Version
@@ -48,40 +50,6 @@ let RecognizeArgs =
     | [|"--load"; filename|] -> ArgType.Load(filename = filename)
     | [|"--source"; code|] -> ArgType.Source(code = code)
     | _ -> ArgType.Unknown
-
-let ProcessArgs argsData =
-    match argsData with
-    | ArgType.Version -> ()
-    | ArgType.Help -> ()
-    | ArgType.Interactive -> ()
-    | ArgType.Load(filename = filename) -> ()
-    | ArgType.Source(code = code) -> ()
-    | ArgType.Unknown -> ()
-
-let ProcessConfigCommand command =
-    match command with
-    | ConfigCommand.Load(filename = filename) -> ()
-    | ConfigCommand.Source(code = code) -> ()
-    | ConfigCommand.Input(filename = filename) -> ()
-    | ConfigCommand.ISource(input = input) -> ()
-    | ConfigCommand.Output(filename = filename) -> ()
-    | ConfigCommand.SetVariable(name = name; value = value) -> ()
-    | ConfigCommand.GetVariable(name = name) -> ()
-    | ConfigCommand.GetAllVariables -> ()
-    | ConfigCommand.EnterRunMode -> ()
-    | ConfigCommand.Unknown -> ()
-
-let ProcessRunnCommand command =
-    match command with
-    | RunCommand.Run -> ()
-    | RunCommand.RunOnce -> ()
-    | RunCommand.GetState -> ()
-    | RunCommand.GetCurrentMemoryCell -> ()
-    | RunCommand.GetMemoryCell(cell = cell) -> ()
-    | RunCommand.ShowInput -> ()
-    | RunCommand.ShowOutput -> ()
-    | RunCommand.ExitRunMode -> ()
-    | RunCommand.Unknown -> ()
 
 let (|LoadCode | _|) (command : string) =
     match command.Split([|' '; '\t'|], 2, StringSplitOptions.RemoveEmptyEntries) with
@@ -162,6 +130,73 @@ let ParseRunCommand (command : string) =
     | "output" -> RunCommand.ShowOutput
     | "exit" -> RunCommand.ExitRunMode
     | _ -> RunCommand.Unknown
+
+let ShowVersion () =
+    ()
+
+let ShowHelp () =
+    ()
+
+let ExecuteCode (code : string) =
+    ()
+
+let ShowUnknownFile (filename: string) =
+    ()
+
+let ShowUnknown () =
+    ()
+
+[<Literal>]
+let ConfigModePrompt = "config>>>"
+
+[<Literal>]
+let RunModePrompt = "run>>>"
+
+let ProcessInteractiveMode () =
+    ()
+
+let ProcessArgs argsData =
+    match argsData with
+    | ArgType.Version -> ShowVersion ()
+    | ArgType.Help -> ShowHelp ()
+    | ArgType.Interactive -> ProcessInteractiveMode ()
+    | ArgType.Load(filename = filename) ->
+        match File.Exists(filename) with
+        | true -> filename |> File.ReadAllText |> ExecuteCode
+        | false -> filename |> ShowUnknownFile
+    | ArgType.Source(code = code) -> code |> ExecuteCode
+    | ArgType.Unknown -> ShowUnknown ()
+
+let ProcessConfigCommand command =
+    match command with
+    | ConfigCommand.Load(filename = filename) -> ()
+    | ConfigCommand.Source(code = code) -> ()
+    | ConfigCommand.Input(filename = filename) -> ()
+    | ConfigCommand.ISource(input = input) -> ()
+    | ConfigCommand.Output(filename = filename) -> ()
+    | ConfigCommand.SetVariable(name = name; value = value) -> ()
+    | ConfigCommand.GetVariable(name = name) -> ()
+    | ConfigCommand.GetAllVariables -> ()
+    | ConfigCommand.EnterRunMode -> ()
+    | ConfigCommand.Unknown -> ()
+
+let ProcessRunMode () =
+    RunModePrompt |> Console.Write;
+    let command = Console.ReadLine()
+    //ProcessRunCommand command
+    ()
+
+let ProcessRunCommand command =
+    match command with
+    | RunCommand.Run -> ()
+    | RunCommand.RunOnce -> ()
+    | RunCommand.GetState -> ()
+    | RunCommand.GetCurrentMemoryCell -> ()
+    | RunCommand.GetMemoryCell(cell = cell) -> ()
+    | RunCommand.ShowInput -> ()
+    | RunCommand.ShowOutput -> ()
+    | RunCommand.ExitRunMode -> ()
+    | RunCommand.Unknown -> ()
 
 // DESCRIPTION:
 //
