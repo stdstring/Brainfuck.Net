@@ -20,6 +20,7 @@ type ConfigCommand =
     | GetVariable of name: string
     | GetAllVariables
     | EnterRunMode
+    | Stop
     | Unknown
 
 type RunCommand =
@@ -109,6 +110,7 @@ let ParseConfigCommand (command : string) =
     | GetVariable name -> ConfigCommand.GetVariable(name = name)
     | "get all" -> ConfigCommand.GetAllVariables
     | "enter" -> ConfigCommand.EnterRunMode
+    | "stop" -> ConfigCommand.Stop
     | _ -> ConfigCommand.Unknown
 
 let (|GetMemory | _|) (command : string) =
@@ -131,10 +133,93 @@ let ParseRunCommand (command : string) =
     | "exit" -> RunCommand.ExitRunMode
     | _ -> RunCommand.Unknown
 
+[<Literal>]
+let ConfigModePrompt = "config>>>"
+
+[<Literal>]
+let RunModePrompt = "run>>>"
+
+type InteractiveMode =
+    // config mode
+    | Config
+    // run mode
+    | Run
+    // for stopping interactive mode
+    | Stop
+
+let ProcessRunCommand command =
+    match command with
+    | RunCommand.Run ->
+        InteractiveMode.Run
+    | RunCommand.RunOnce ->
+        InteractiveMode.Run
+    | RunCommand.GetState ->
+        InteractiveMode.Run
+    | RunCommand.GetCurrentMemoryCell ->
+        InteractiveMode.Run
+    | RunCommand.GetMemoryCell(cell = cell) ->
+        InteractiveMode.Run
+    | RunCommand.ShowInput ->
+        InteractiveMode.Run
+    | RunCommand.ShowOutput ->
+        InteractiveMode.Run
+    | RunCommand.ExitRunMode ->
+        InteractiveMode.Config
+    | RunCommand.Unknown ->
+        InteractiveMode.Run
+
+let ProcessRunMode () =
+    let rec processImpl () =
+        RunModePrompt |> Console.Write;
+        let command = Console.ReadLine()
+        match (command |> ParseRunCommand |> ProcessRunCommand) with
+        | InteractiveMode.Run -> processImpl ()
+        | _ -> ()
+        //| InteractiveMode.Config -> InteractiveMode.Config
+        //| InteractiveMode.Stop -> InteractiveMode.Stop
+    processImpl ()
+
+let ProcessConfigCommand command =
+    match command with
+    | ConfigCommand.Load(filename = filename) ->
+        InteractiveMode.Config
+    | ConfigCommand.Source(code = code) ->
+        InteractiveMode.Config
+    | ConfigCommand.Input(filename = filename) ->
+        InteractiveMode.Config
+    | ConfigCommand.ISource(input = input) ->
+        InteractiveMode.Config
+    | ConfigCommand.Output(filename = filename) ->
+        InteractiveMode.Config
+    | ConfigCommand.SetVariable(name = name; value = value) ->
+        InteractiveMode.Config
+    | ConfigCommand.GetVariable(name = name) ->
+        InteractiveMode.Config
+    | ConfigCommand.GetAllVariables ->
+        InteractiveMode.Config
+    | ConfigCommand.EnterRunMode ->
+        InteractiveMode.Run
+    | ConfigCommand.Stop ->
+        InteractiveMode.Stop
+    | ConfigCommand.Unknown ->
+        InteractiveMode.Config
+
+let ProcessConfigMode () =
+    let rec processImpl () =
+        ConfigModePrompt |> Console.Write;
+        let command = Console.ReadLine()
+        match (command |> ParseConfigCommand |> ProcessConfigCommand) with
+        | InteractiveMode.Run -> ProcessRunMode ()
+        | InteractiveMode.Config -> processImpl ()
+        | InteractiveMode.Stop -> ()
+    processImpl ()
+
 let ShowVersion () =
+    "version = XXX" |> Console.WriteLine
     ()
 
 let ShowHelp () =
+    "Help ..." |> Console.WriteLine
     ()
 
 let ExecuteCode (code : string) =
@@ -146,14 +231,8 @@ let ShowUnknownFile (filename: string) =
 let ShowUnknown () =
     ()
 
-[<Literal>]
-let ConfigModePrompt = "config>>>"
-
-[<Literal>]
-let RunModePrompt = "run>>>"
-
 let ProcessInteractiveMode () =
-    ()
+    ProcessConfigMode ()
 
 let ProcessArgs argsData =
     match argsData with
@@ -166,37 +245,6 @@ let ProcessArgs argsData =
         | false -> filename |> ShowUnknownFile
     | ArgType.Source(code = code) -> code |> ExecuteCode
     | ArgType.Unknown -> ShowUnknown ()
-
-let ProcessConfigCommand command =
-    match command with
-    | ConfigCommand.Load(filename = filename) -> ()
-    | ConfigCommand.Source(code = code) -> ()
-    | ConfigCommand.Input(filename = filename) -> ()
-    | ConfigCommand.ISource(input = input) -> ()
-    | ConfigCommand.Output(filename = filename) -> ()
-    | ConfigCommand.SetVariable(name = name; value = value) -> ()
-    | ConfigCommand.GetVariable(name = name) -> ()
-    | ConfigCommand.GetAllVariables -> ()
-    | ConfigCommand.EnterRunMode -> ()
-    | ConfigCommand.Unknown -> ()
-
-let ProcessRunMode () =
-    RunModePrompt |> Console.Write;
-    let command = Console.ReadLine()
-    //ProcessRunCommand command
-    ()
-
-let ProcessRunCommand command =
-    match command with
-    | RunCommand.Run -> ()
-    | RunCommand.RunOnce -> ()
-    | RunCommand.GetState -> ()
-    | RunCommand.GetCurrentMemoryCell -> ()
-    | RunCommand.GetMemoryCell(cell = cell) -> ()
-    | RunCommand.ShowInput -> ()
-    | RunCommand.ShowOutput -> ()
-    | RunCommand.ExitRunMode -> ()
-    | RunCommand.Unknown -> ()
 
 // DESCRIPTION:
 //
@@ -225,6 +273,7 @@ let ProcessRunCommand command =
 // get {variable} -> getting value of the specified variable (now, variable = MemorySize, MemoryInitCell, MaxOpCount)
 // get all -> getting values of the all known variables (now, variable = MemorySize, MemoryInitCell, MaxOpCount)
 // enter -> move into run mode
+// stop -> stop interactive mode
 // in run mode:
 // run all -> execute code to the end
 // run once -> execute (one) current command
