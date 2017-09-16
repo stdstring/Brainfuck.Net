@@ -78,12 +78,15 @@ type public Interpreter() =
 
     member public this.Execute(program : string, config : InterpreterConfig) : unit =
         let factory = new ExecutionContextFactory()
+        factory.Create(program, config) |> this.Execute
+
+    member public this.Execute(context : ExecutionContext) : unit =
         let rec execute context =
             match this.ExecuteNextCommand(context) with
             | ExecutionState.Run -> context |> execute
             | ExecutionState.Stop -> ()
             | _ -> raise (InvalidOperationException("bad execution state"))
-        factory.Create(program, config) |> execute
+        context |> execute
 
     member public this.ExecuteNextCommand(context : ExecutionContext) : ExecutionState =
         let programSize = context.Program.Length
