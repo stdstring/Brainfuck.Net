@@ -2,12 +2,21 @@
 open System.IO
 open Brainfuck.Net.Interpreter.Core
 
+[<Literal>]
+let DefaultMemorySize = 50000
+
+[<Literal>]
+let DefaultInitCell = 0
+
+[<Literal>]
+let DefaultMaxOpCount = 100000
+
 type ArgType =
     | Version
     | Help
     | Interactive
-    | Load of filename: string
-    | Source of code: string
+    | Load of filename: string * memorySize: int * initCell: int * maxOpCount: int
+    | Source of code: string * memorySize: int * initCell: int * maxOpCount: int
     | Unknown
 
 type ConfigCommand =
@@ -34,22 +43,43 @@ type RunCommand =
     | ExitRunMode
     | Unknown
 
-//let RecognizeArgs argv =
-//    match argv with
-//    | [||] | [|"--help"|] -> ArgType.Help
-//    | [|"--version"|] -> ArgType.Version
-//    | [|"--interactive"|] -> ArgType.Interactive
-//    | [|"--load"; Filename|] -> ArgType.Load(filename = Filename)
-//    | [|"--source"; Data|] -> ArgType.Source(data = Data)
-//    | _ -> ArgType.Unknown
+let (|ToInt | _|) (source : string) =
+    let mutable value = 0
+    match Int32.TryParse(source, &value) with
+    | true -> Some(value)
+    | false -> None
 
-let RecognizeArgs =
-    function
+// TODO (std_string) : create smart solution
+let ConvertConfigArgs (memorySizeStr : string) (initCellStr : string) (maxOpCountStr : string) =
+    match memorySizeStr with
+    | ToInt memorySize ->
+        match initCellStr with
+        | ToInt initCell ->
+            match maxOpCountStr with
+            | ToInt maxOpCount -> Some(memorySize, initCell, maxOpCount)
+            | _ -> None
+        | _ -> None
+    | _ -> None
+
+let RecognizeArgs argv =
+    match argv with
     | [||] | [|"--help"|] -> ArgType.Help
     | [|"--version"|] -> ArgType.Version
     | [|"--interactive"|] -> ArgType.Interactive
-    | [|"--load"; filename|] -> ArgType.Load(filename = filename)
-    | [|"--source"; code|] -> ArgType.Source(code = code)
+    // TODO (std_string) : create smart solution
+    | [|"--load"; filename|] -> ArgType.Load(filename = filename, memorySize = DefaultMemorySize, initCell = DefaultInitCell, maxOpCount = DefaultMaxOpCount)
+    // TODO (std_string) : create smart solution
+    | [|"--load"; filename; "--size"; memorySizeStr; "--start"; initCellStr; "--max-op"; maxOpCountStr|] ->
+        match ConvertConfigArgs memorySizeStr initCellStr maxOpCountStr with
+        | Some (memorySize, initCell, maxOpCount) -> ArgType.Load(filename = filename, memorySize = memorySize, initCell = initCell, maxOpCount = maxOpCount)
+        | _ -> ArgType.Unknown
+    // TODO (std_string) : create smart solution
+    | [|"--source"; code|] -> ArgType.Source(code = code, memorySize = DefaultMemorySize, initCell = DefaultInitCell, maxOpCount = DefaultMaxOpCount)
+    // TODO (std_string) : create smart solution
+    | [|"--source"; code; "--size"; memorySizeStr; "--start"; initCellStr; "--max-op"; maxOpCountStr|] ->
+        match ConvertConfigArgs memorySizeStr initCellStr maxOpCountStr with
+        | Some (memorySize, initCell, maxOpCount) -> ArgType.Source(code = code, memorySize = memorySize, initCell = initCell, maxOpCount = maxOpCount)
+        | _ -> ArgType.Unknown
     | _ -> ArgType.Unknown
 
 let (|LoadCode | _|) (command : string) =
@@ -76,12 +106,6 @@ let (|RedirectOutput | _|) (command : string) =
     match command.Split([|' '; '\t'|], 2, StringSplitOptions.RemoveEmptyEntries) with
     | [|"output"; filename|] -> Some(filename)
     | _ -> None
-
-let (|ToInt | _|) (source : string) =
-    let mutable value = 0
-    match Int32.TryParse(source, &value) with
-    | true -> Some(value)
-    | false -> None
 
 let (|SetVariable | _|) (command : string) =
     match command.Split([|' '; '\t'|], 2, StringSplitOptions.RemoveEmptyEntries) with
@@ -222,13 +246,18 @@ let ShowHelp () =
     "Help ..." |> Console.WriteLine
     ()
 
-let ExecuteCode (code : string) =
+let ExecuteCode (memorySize : int) (initCell : int) (maxOpCount : int) (code : string) =
+    let config = {MemorySize = memorySize; MemoryInitCell = initCell; MaxOpCount = maxOpCount; Input = Console.In; Output = Console.Out}
+    let interpreter = new Interpreter();
+    interpreter.Execute(code, config)
     ()
 
 let ShowUnknownFile (filename: string) =
+    Console.WriteLine("Unknown file with name \"{0}\"", filename)
     ()
 
 let ShowUnknown () =
+    "Unknown command ... " |> Console.WriteLine
     ()
 
 let ProcessInteractiveMode () =
@@ -239,11 +268,11 @@ let ProcessArgs argsData =
     | ArgType.Version -> ShowVersion ()
     | ArgType.Help -> ShowHelp ()
     | ArgType.Interactive -> ProcessInteractiveMode ()
-    | ArgType.Load(filename = filename) ->
+    | ArgType.Load(filename = filename; memorySize = memorySize; initCell = initCell; maxOpCount = maxOpCount) ->
         match File.Exists(filename) with
-        | true -> filename |> File.ReadAllText |> ExecuteCode
+        | true -> filename |> File.ReadAllText |> ExecuteCode memorySize initCell maxOpCount
         | false -> filename |> ShowUnknownFile
-    | ArgType.Source(code = code) -> code |> ExecuteCode
+    | ArgType.Source(code = code; memorySize = memorySize; initCell = initCell; maxOpCount = maxOpCount) -> code |> ExecuteCode memorySize initCell maxOpCount
     | ArgType.Unknown -> ShowUnknown ()
 
 // DESCRIPTION:
@@ -253,8 +282,9 @@ let ProcessArgs argsData =
 // 1) --version
 // 2) --help
 // 3) --interactive
-// 4) --load code-filename
-// 5) --source code-fragment
+// 4) --load code-filename [--size memory-size --start memory-init-cell --max-op max-op-count]
+// 5) --source code-fragment [--size memory-size --start memory-init-cell --max-op max-op-count]
+// default values:  memory-size = 50000, memory-init-cell = 0, max-op-count = 100000
 // allowed combinations:
 // app -> show help
 // app --help -> show help
